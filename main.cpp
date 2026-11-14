@@ -140,6 +140,87 @@ void liberarLista(ListaTarefas& lista) {
     lista.tamanho = 0;
 }
 
+// Pilha de ações para desfazer
+
+/* Prepara uma pilha vazia.
+   Parâmetro: pilha (por referência). */
+void inicializarPilha(PilhaAcoes& pilha) {
+    pilha.topo = nullptr;
+    pilha.tamanho = 0;
+}
+
+/* Verifica se a pilha está vazia.
+   Retorno: true se não há ações para desfazer. */
+bool pilhaVazia(const PilhaAcoes& pilha) {
+    return pilha.topo == nullptr;
+}
+
+/* Empilha uma ação, guardando uma cópia da tarefa. Custo O(1).
+   Parâmetros: pilha, tipo da ação, tarefa (copiada antes de ser alterada). */
+void empilhar(PilhaAcoes& pilha, TipoAcao tipo, const Tarefa& tarefa) {
+    Acao* nova = new Acao;
+    nova->tipo = tipo;
+    nova->copia = tarefa;
+    nova->copia.proxima = nullptr;
+    nova->abaixo = pilha.topo;
+    pilha.topo = nova;
+    pilha.tamanho++;
+}
+
+/* Desempilha (pop) a ação do topo e libera o nó. Custo O(1).
+   Parâmetros: pilha, destino (recebe a ação removida).
+   Retorno: true se desempilhou, false se a pilha estava vazia. */
+bool desempilhar(PilhaAcoes& pilha, Acao& destino) {
+    if (pilhaVazia(pilha)) return false;
+    Acao* removida = pilha.topo;
+    destino = *removida;
+    destino.abaixo = nullptr;
+    pilha.topo = removida->abaixo;
+    delete removida;
+    removida = nullptr;
+    pilha.tamanho--;
+    return true;
+}
+
+/* Libera todos os nós restantes da pilha.
+   Parâmetro: pilha, que volta ao estado vazio. */
+void liberarPilha(PilhaAcoes& pilha) {
+    Acao* atual = pilha.topo;
+    while (atual != nullptr) {
+        Acao* abaixo = atual->abaixo;
+        delete atual;
+        atual = abaixo;
+    }
+    pilha.topo = nullptr;
+    pilha.tamanho = 0;
+}
+
+/* Recoloca na lista uma tarefa removida, mantendo o id original.
+   Parâmetros: lista, modelo */
+void restaurarTarefa(ListaTarefas& lista, const Tarefa& modelo) {
+    Tarefa* nova = criarTarefa(modelo.id, modelo.titulo,
+                               modelo.prioridade, modelo.prazo);
+    nova->concluida = modelo.concluida;
+    anexarNo(lista, nova);
+}
+
+/* Desfaz a última ação registrada.
+   Parâmetros: lista, pilha.
+   Retorno: true se desfez algo, false se não havia ação. */
+bool desfazerUltimaAcao(ListaTarefas& lista, PilhaAcoes& pilha) {
+    Acao acao;
+    if (!desempilhar(pilha, acao)) return false;
+    if (acao.tipo == ADICAO) {
+        removerTarefa(lista, acao.copia.id);       // desfaz o cadastro
+    } else if (acao.tipo == REMOCAO) {
+        restaurarTarefa(lista, acao.copia);        // desfaz a remoção
+    } else {
+        Tarefa* tarefa = buscarPorId(lista, acao.copia.id);
+        if (tarefa != nullptr) tarefa->concluida = false;
+    }
+    return true;
+}
+
 // Interface
 
 /* Lê um número inteiro do teclado, exibindo uma mensagem.
