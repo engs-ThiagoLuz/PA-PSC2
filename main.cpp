@@ -140,6 +140,46 @@ void liberarLista(ListaTarefas& lista) {
     lista.tamanho = 0;
 }
 
+// ------------------------- Recursividade (R3) -------------------------
+// Uma lista encadeada é naturalmente recursiva: "uma lista é vazia
+// OU um nó seguido de outra lista". Por isso cada função abaixo tem
+// caso base (nó nulo) e caso recursivo (chama a si mesma em ->proxima).
+// Complexidade: O(n) tempo e O(n) espaço (uma chamada empilhada por nó).
+
+/* Conta quantas tarefas existem a partir de um nó.
+   Parâmetro: no (início da sublista).
+   Retorno: quantidade de nós. */
+int contarTarefas(const Tarefa* no) {
+    if (no == nullptr) return 0;                  // caso base
+    return 1 + contarTarefas(no->proxima);        // caso recursivo
+}
+
+/* Conta quantas tarefas ainda não foram concluídas.
+   Parâmetro: no (início da sublista).
+   Retorno: quantidade de tarefas pendentes. */
+int contarPendentes(const Tarefa* no) {
+    if (no == nullptr) return 0;
+    int atual = no->concluida ? 0 : 1;
+    return atual + contarPendentes(no->proxima);
+}
+
+/* Busca recursiva por id (versão recursiva da busca sequencial).
+   Parâmetros: no (início da sublista), id procurado.
+   Retorno: ponteiro para a tarefa ou nullptr se não existir. */
+const Tarefa* buscarRecursivo(const Tarefa* no, int id) {
+    if (no == nullptr || no->id == id) return no;  // fim ou achou
+    return buscarRecursivo(no->proxima, id);
+}
+
+/* Imprime a lista do último para o primeiro nó. A impressão acontece
+   DEPOIS da chamada recursiva, na volta da pilha (backtracking).
+   Parâmetro: no (início da sublista). */
+void imprimirInvertida(const Tarefa* no) {
+    if (no == nullptr) return;
+    imprimirInvertida(no->proxima);
+    imprimirTarefa(no);
+}
+
 // Pilha de ações para desfazer
 
 /* Prepara uma pilha vazia.
@@ -195,6 +235,7 @@ void liberarPilha(PilhaAcoes& pilha) {
     pilha.tamanho = 0;
 }
 
+// Recursividade
 /* Recoloca na lista uma tarefa removida, mantendo o id original.
    Parâmetros: lista, modelo */
 void restaurarTarefa(ListaTarefas& lista, const Tarefa& modelo) {
@@ -211,9 +252,9 @@ bool desfazerUltimaAcao(ListaTarefas& lista, PilhaAcoes& pilha) {
     Acao acao;
     if (!desempilhar(pilha, acao)) return false;
     if (acao.tipo == ADICAO) {
-        removerTarefa(lista, acao.copia.id);       // desfaz o cadastro
+        removerTarefa(lista, acao.copia.id);
     } else if (acao.tipo == REMOCAO) {
-        restaurarTarefa(lista, acao.copia);        // desfaz a remoção
+        restaurarTarefa(lista, acao.copia);
     } else {
         Tarefa* tarefa = buscarPorId(lista, acao.copia.id);
         if (tarefa != nullptr) tarefa->concluida = false;
