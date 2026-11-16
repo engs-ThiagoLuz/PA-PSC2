@@ -122,6 +122,7 @@ void liberarLista(ListaTarefas& lista) {
 int contarTarefas(const Tarefa* no) {
     if (no == nullptr) return 0;
     return 1 + contarTarefas(no->proxima); 
+}
 
 // Conta quantas tarefas ainda não foram concluídas.
 int contarPendentes(const Tarefa* no) {
