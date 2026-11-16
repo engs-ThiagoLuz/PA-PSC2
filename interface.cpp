@@ -38,13 +38,8 @@ string lerTexto(const string& mensagem) {
 
 // Pede os dados, insere e registra a ação na pilha.
 void menuAdicionar(ListaTarefas& lista, PilhaAcoes& pilha) {
-<<<<<<< HEAD
     string titulo = lerTexto("Titulo: ");
     int prioridade = lerInteiro("Prioridade (1-alta, 2-media, 3-baixa): ");
-=======
-    string titulo = lerTexto("Título: ");
-    int prioridade = lerInteiro("Prioridade (1-alta, 2-média, 3-baixa): ");
->>>>>>> 8c1e0b855bcd6de5ef321e7ab63c5af8a6fd1295
     int prazo = lerInteiro("Prazo (AAAAMMDD, 0 = sem prazo): ");
     int id = inserirTarefa(lista, titulo, prioridade, prazo);
     empilhar(pilha, ADICAO, *buscarPorId(lista, id));
