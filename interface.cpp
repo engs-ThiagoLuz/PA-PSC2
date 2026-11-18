@@ -3,6 +3,7 @@
 #include <iostream>
 #include "lista.cpp"
 #include "pilha.cpp"
+#include "fila.cpp"
 #include "ordenacao.cpp"
 using namespace std;
 
@@ -50,6 +51,9 @@ void mostrarMenu() {
          << "8 - Listar em ordem inversa [recursivo]\n"
          << "9 - Ordenar por prazo [Insertion Sort]\n"
          << "10 - Ordenar por prioridade [Insertion Sort]\n"
+         << "11 - Colocar tarefa na fila de execucao\n"
+         << "12 - Executar proxima da fila\n"
+         << "13 - Ver fila de execucao\n"
          << "0 - Sair\n";
 }
 
@@ -100,4 +104,51 @@ void menuOrdenar(ListaTarefas& lista, int opcao) {
     ordenarLista(lista, (opcao == 9) ? POR_PRAZO : POR_PRIORIDADE);
     cout << "Lista ordenada:\n";
     listarTarefas(lista);
+}
+
+// Imprime a fila de execução, da frente para o fim.
+void mostrarFila(const ListaTarefas& lista, const FilaExecucao& fila) {
+    if (filaVazia(fila)) {
+        cout << "Fila de execução vazia.\n";
+        return;
+    }
+    int posicao = 1;
+    for (NoFila* atual = fila.frente; atual != nullptr; atual = atual->proximo) {
+        const Tarefa* tarefa = buscarRecursivo(lista.inicio, atual->idTarefa);
+        cout << posicao++ << "o - ";
+        if (tarefa != nullptr) imprimirTarefa(tarefa);
+        else cout << "(tarefa " << atual->idTarefa << " removida)\n";
+    }
+}
+
+// Coloca uma tarefa pendente no fim da fila.
+void menuEnfileirar(const ListaTarefas& lista, FilaExecucao& fila) {
+    int id = lerInteiro("Id da tarefa: ");
+    const Tarefa* tarefa = buscarRecursivo(lista.inicio, id);
+    if (tarefa == nullptr || tarefa->concluida) {
+        cout << "Tarefa inexistente ou já concluída.\n";
+    } else if (filaContem(fila, id)) {
+        cout << "Essa tarefa já está na fila.\n";
+    } else {
+        enfileirar(fila, id);
+        cout << "Tarefa " << id << " na posição " << fila.tamanho << ".\n";
+    }
+}
+
+// Trata as opções da fila: 11 (enfileirar), 12 (executar), 13 (ver).
+void menuFila(ListaTarefas& lista, PilhaAcoes& pilha, FilaExecucao& fila,
+              int opcao) {
+    if (opcao == 11) {
+        menuEnfileirar(lista, fila);
+    } else if (opcao == 12) {
+        Tarefa* feita = executarProxima(lista, pilha, fila);
+        if (feita != nullptr) {
+            cout << "Executada: ";
+            imprimirTarefa(feita);
+        } else {
+            cout << "Nenhuma tarefa pendente na fila.\n";
+        }
+    } else {
+        mostrarFila(lista, fila);
+    }
 }
