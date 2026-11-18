@@ -5,6 +5,7 @@
 #include "pilha.cpp"
 #include "fila.cpp"
 #include "ordenacao.cpp"
+#include "arvore.cpp"
 using namespace std;
 
 // Lê um número inteiro do teclado, exibindo uma mensagem.
@@ -54,6 +55,8 @@ void mostrarMenu() {
          << "11 - Colocar tarefa na fila de execucao\n"
          << "12 - Executar proxima da fila\n"
          << "13 - Ver fila de execucao\n"
+        << "14 - Listar por titulo A-Z [arvore]\n"
+         << "15 - Buscar por titulo [arvore]\n"
          << "0 - Sair\n";
 }
 
@@ -109,7 +112,7 @@ void menuOrdenar(ListaTarefas& lista, int opcao) {
 // Imprime a fila de execução, da frente para o fim.
 void mostrarFila(const ListaTarefas& lista, const FilaExecucao& fila) {
     if (filaVazia(fila)) {
-        cout << "Fila de execução vazia.\n";
+        cout << "Fila de execucao vazia.\n";
         return;
     }
     int posicao = 1;
@@ -126,12 +129,12 @@ void menuEnfileirar(const ListaTarefas& lista, FilaExecucao& fila) {
     int id = lerInteiro("Id da tarefa: ");
     const Tarefa* tarefa = buscarRecursivo(lista.inicio, id);
     if (tarefa == nullptr || tarefa->concluida) {
-        cout << "Tarefa inexistente ou já concluída.\n";
+        cout << "Tarefa inexistente ou ja concluída.\n";
     } else if (filaContem(fila, id)) {
-        cout << "Essa tarefa já está na fila.\n";
+        cout << "Essa tarefa ja esta na fila.\n";
     } else {
         enfileirar(fila, id);
-        cout << "Tarefa " << id << " na posição " << fila.tamanho << ".\n";
+        cout << "Tarefa " << id << " na posicao " << fila.tamanho << ".\n";
     }
 }
 
@@ -151,4 +154,21 @@ void menuFila(ListaTarefas& lista, PilhaAcoes& pilha, FilaExecucao& fila,
     } else {
         mostrarFila(lista, fila);
     }
+}
+
+// Trata as opções da árvore: 14  e 15
+void menuArvore(const ListaTarefas& lista, int opcao) {
+    ArvoreTitulos arvore;
+    inicializarArvore(arvore);
+    construirIndice(lista, arvore);
+    if (opcao == 14) {
+        percorrerEmOrdem(arvore.raiz, lista);
+        cout << "(altura da arvore: " << alturaArvore(arvore.raiz) << ")\n";
+    } else {
+        string titulo = lerTexto("Título exato: ");
+        const NoArvore* achado = buscarNo(arvore.raiz, minusculas(titulo));
+        if (achado != nullptr) imprimirTarefa(buscarPorId(lista, achado->idTarefa));
+        else cout << "Titulo nao encontrado.\n";
+    }
+    liberarArvore(arvore);
 }
