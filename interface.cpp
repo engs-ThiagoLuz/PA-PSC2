@@ -58,8 +58,8 @@ void mostrarMenu() {
          << "13 - Ver fila de execucao\n"
          << "14 - Listar por titulo A-Z [arvore]\n"
          << "15 - Buscar por titulo [arvore]\n"
-         << "16 - Buscar tarefa por id: sequencial x binária\n"
-         << "17 - Benchmark: sequencial x binária\n"
+         << "16 - Buscar tarefa por id: sequencial x binaria\n"
+         << "17 - Benchmark: sequencial x binaria\n"
          << "0 - Sair\n";
 }
 
