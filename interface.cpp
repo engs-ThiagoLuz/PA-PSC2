@@ -6,6 +6,7 @@
 #include "fila.cpp"
 #include "ordenacao.cpp"
 #include "arvore.cpp"
+#include "busca.cpp"
 using namespace std;
 
 // Lê um número inteiro do teclado, exibindo uma mensagem.
@@ -55,8 +56,10 @@ void mostrarMenu() {
          << "11 - Colocar tarefa na fila de execucao\n"
          << "12 - Executar proxima da fila\n"
          << "13 - Ver fila de execucao\n"
-        << "14 - Listar por titulo A-Z [arvore]\n"
+         << "14 - Listar por titulo A-Z [arvore]\n"
          << "15 - Buscar por titulo [arvore]\n"
+         << "16 - Buscar tarefa por id: sequencial x binária\n"
+         << "17 - Benchmark: sequencial x binária\n"
          << "0 - Sair\n";
 }
 
@@ -171,4 +174,36 @@ void menuArvore(const ListaTarefas& lista, int opcao) {
         else cout << "Titulo nao encontrado.\n";
     }
     liberarArvore(arvore);
+}
+
+// Compara as duas buscas sobre as tarefas reais, por id.
+void menuBuscaReal(const ListaTarefas& lista) {
+    int* ids = copiarIdsOrdenados(lista);
+    if (ids == nullptr) {
+        cout << "Nenhuma tarefa cadastrada.\n";
+        return;
+    }
+    int id = lerInteiro("Id procurado: ");
+    ResultadoBusca seq = buscaSequencial(ids, lista.tamanho, id);
+    ResultadoBusca bin = buscaBinaria(ids, lista.tamanho, id);
+    cout << "Sequencial: posicao " << seq.posicao << ", "
+         << seq.comparacoes << " comparacoes\n"
+         << "Binaria:    posicao " << bin.posicao << ", "
+         << bin.comparacoes << " comparacoes\n";
+    if (bin.posicao >= 0) imprimirTarefa(buscarPorId(lista, id));
+    else cout << "Id nao encontrado.\n";
+    delete[] ids;
+    ids = nullptr;
+}
+
+// Trata as opções de busca: 16 (tarefas reais) e 17 (benchmark).
+void menuBusca(const ListaTarefas& lista, int opcao) {
+    if (opcao == 16) {
+        menuBuscaReal(lista);
+        return;
+    }
+    const int tamanhos[] = {10, 1000, 100000, 1000000};
+    for (int i = 0; i < 4; i++) {
+        compararDesempenho(tamanhos[i]);
+    }
 }

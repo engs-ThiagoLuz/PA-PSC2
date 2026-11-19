@@ -20,6 +20,7 @@ int main() {
         else if (opcao == 9 || opcao == 10) menuOrdenar(lista, opcao);
         else if (opcao >= 11 && opcao <= 13) menuFila(lista, pilha, fila, opcao);
         else if (opcao == 14 || opcao == 15) menuArvore(lista, opcao);
+        else if (opcao == 16 || opcao == 17) menuBusca(lista, opcao);
     } while (opcao != 0);
     liberarLista(lista);
     liberarPilha(pilha);
